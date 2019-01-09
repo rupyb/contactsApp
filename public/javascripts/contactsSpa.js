@@ -22,7 +22,7 @@
     const clearForms = $('.closeForm');
     const cancelUpdateFormButton = $('#cancelUpdateFormButton');
     let rowToUpdate;
-
+    const mainContent = $('#mainContent');
 
    
 
@@ -188,5 +188,6 @@
         });
     }
     $('#hiddenButton').hide();
+    // mainContent.hide();
     startApp();
 }());
