@@ -41,7 +41,7 @@ router.route('/:id')
     .get((req, res, next) => {
         pool.query('SELECT * FROM contacts WHERE id=$1', [req.params.id], (err, results) => {
             console.log('entered get', results);
-            console.log('entered get', results.rows.length);
+            //console.log('entered get', results.rows.length);
             if (err) {
                 return res.status(500).send(err.message);
             }
