@@ -161,7 +161,7 @@
             console.log(' post failed');
             errorHeader[0].innerText = `${xhr.statusText} Code:${xhr.status}`;
             errorMessage[0].innerText = xhr.responseText;
-            errorDiv.show();
+            $('#hiddenButton').click();
         });
 
         //hideAddContactForm();
@@ -176,6 +176,71 @@
         addContactForm[0].reset();
     });
 
+    
+    // code for the signup button
+    const signUpFirstname = $('#signUpFirstname');
+    const signUpLastname = $('#signUpLastname');
+    const signUpEmail = $('#signUpEmail');
+    const signUpPassword = $('#signUpPassword');
+    const signUpAdminPassword = $('#signUpAdminPassword');
+    const signUpFormCloseButton = $('#signUpFormCloseButton');
+    const signUpForm = $('#signUpForm');
+    const signUpSubmitButton = $('#signUpSubmitButton');
+    
+    signUpForm.submit((event) => {
+        console.log('submit');
+        const newUser = {
+            firstname: signUpFirstname.val(),
+            lastname: signUpLastname.val(),
+            email: signUpEmail.val(),
+            password: signUpPassword.val(),
+            adminPassword: signUpAdminPassword.val(),
+        };
+        console.log(newUser);
+        $.post('/userSignUp', newUser, (res) => {
+            console.log(res);
+            
+        }).fail((xhr) => {
+            errorHeader[0].innerText = `${xhr.statusText} Code:${xhr.status}`;
+            errorMessage[0].innerText = xhr.responseText;
+            $('#hiddenButton').click();
+        });
+        
+        signUpFormCloseButton.click();
+        event.preventDefault();
+    });
+    // end code for signup button
+
+    // code for the signin button
+    const signInEmail = $('#signInEmail');
+    const signInPassword = $('#signInPassword');
+    const signInFormCloseButton = $('#signInFormCloseButton');
+    const signInForm = $('#signInForm');
+    const signInSubmitButton = $('#signInSubmitButton');
+    
+    signInForm.submit((event) => {
+        console.log('submit');
+        const newUser = {
+            email: signInEmail.val(),
+            password: signInPassword.val()
+        };
+        console.log(newUser);
+        $.post('/userSignIn', newUser, (res) => {
+            console.log(res);
+            mainContent.show();
+            startApp();
+        }).fail((xhr) => {
+            errorHeader[0].innerText = `${xhr.statusText} Code:${xhr.status}`;
+            errorMessage[0].innerText = xhr.responseText;
+            $('#hiddenButton').click();
+        });
+        
+        signInFormCloseButton.click();
+        event.preventDefault();
+    });
+    // end code for signup button
+
+    
     function startApp() {
         $.get('/api/contacts', loadedContacts => {
             //console.log(loadedContacts.rows);
@@ -184,10 +249,10 @@
         }).fail((xhr) => {
             errorHeader[0].innerText = `${xhr.statusText} Code:${xhr.status}`;
             errorMessage[0].innerText = xhr.responseText;
-            errorDiv.show();
+            $('#hiddenButton').click();
         });
     }
+
     $('#hiddenButton').hide();
-    // mainContent.hide();
-    startApp();
+    mainContent.hide();
 }());

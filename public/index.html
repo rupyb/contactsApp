@@ -19,10 +19,10 @@
                         Contact</button>
                 </li>
                 <li class="nav-item active">
-                    <button class="btn btn-primary">Sign In</button>
+                    <button class="btn btn-primary" data-toggle="modal" data-target="#signInForm">Sign In</button>
                 </li>
                 <li class="nav-item active">
-                    <button class="btn btn-primary" data-toggle="modal" data-target="#signUpModal">Sign Up</button>
+                    <button class="btn btn-primary" data-toggle="modal" data-target="#signUpForm">Sign Up</button>
                 </li>
             </ul>
         </nav>
@@ -133,7 +133,8 @@
             </div>
         </div>
         <div id="signUpDiv">
-            <div id="signUpModal" class="modal">
+
+            <form class=" modal form-group" id="signUpForm">
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -141,38 +142,77 @@
                             <button type="button" class="close" data-dismiss="modal">&times;</button>
                         </div>
                         <div class="modal-body">
-                            <form>
-                                <div class="form-group">
-                                    <label for="signUpFirstname">First Name</label>
-                                    <input type="text" id="signUpFirstname">
-                                </div>
-                                <div class="form-group">
-                                    <label for="signUpLastname">Last Name</label>
-                                    <input type="text" id="signUpLastname">
-                                </div>
-                                <div class="form-group">
-                                    <label for="signUpEmail">Email</label>
-                                    <input type="text" id="signUpEmail">
-                                </div>
-                                <div class="form-group">
-                                    <label for="signUpPassword">Password</label>
-                                    <input type="password" id="signUpPassword">
-                                </div>
-                                <div class="form-group">
-                                    <label for="signUpAdminPassword">Admin Password</label>
-                                    <input type="password" id="signUpAdminPassword">
-                                </div>
-                            </form>
+
+                            <div class="form-group">
+                                <label for="signUpFirstname">First Name</label>
+                                <input type="text" id="signUpFirstname" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="signUpLastname">Last Name</label>
+                                <input type="text" id="signUpLastname" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="signUpEmail">Email</label>
+                                <input type="text" id="signUpEmail" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="signUpPassword">Password</label>
+                                <input type="password" id="signUpPassword" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="signUpAdminPassword">Admin Password</label>
+                                <input type="password" id="signUpAdminPassword" class="form-control">
+                            </div>
+
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-danger" data-dismiss="modal">
+                            <button type="submit" class="btn btn-danger" id="signUpSubmitButton">
+                                Submit
+                            </button>
+                            <button type="button" class="btn btn-danger" data-dismiss="modal" id="signUpFormCloseButton">
                                 Close
                             </button>
+
                         </div>
                     </div>
                 </div>
-            </div>
+            </form>
         </div>
+
+        <div id="signInDiv">
+
+                <form class=" modal form-group" id="signInForm">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h2>Sign In</h2>
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            </div>
+                            <div class="modal-body">
+    
+                                <div class="form-group">
+                                    <label for="signInEmail">Email</label>
+                                    <input type="text" id="signInEmail" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label for="signInPassword">Password</label>
+                                    <input type="password" id="signInPassword" class="form-control">
+                                </div>
+    
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-danger" id="signInSubmitButton">
+                                    Submit
+                                </button>
+                                <button type="button" class="btn btn-danger" data-dismiss="modal" id="signInFormCloseButton">
+                                    Close
+                                </button>
+    
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
         crossorigin="anonymous"></script>

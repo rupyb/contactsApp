@@ -7,7 +7,8 @@ var logger = require('morgan');
 
 
 var contactsApiRouter = require('./routes/contactsApi');
-
+var userSignUp = require('./routes/userSignUp');
+var userSignIn = require('./routes/userSignIn');
 var app = express();
 
 // view engine setup
@@ -21,7 +22,8 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 
-// app.use('/',);
+app.use('/userSignUp',userSignUp);
+app.use('/userSignIn',userSignIn);
 app.use('/api/contacts', contactsApiRouter);
 
 
@@ -64,10 +66,10 @@ const client = new Client({
 });
   
 // eslint-disable-next-line quotes
-pool.query("UPDATE contacts SET lastname = 'dill' WHERE firstname = 'john'", (err, res) => {
-    // console.log('errorrrrrrrrrrrrrrrrrrrrrrrrr', err);   
-    // console.log(res);
-});
+// pool.query("SELECT * FROM users WHERE email = 'johndoe@mail.com' AND password = crypt('johnspassword', password);", (err, res) => {
+//     // console.log('errorrrrrrrrrrrrrrrrrrrrrrrrr', err);   
+//     console.log(res);
+// });
 
 global.pool = pool;
 
