@@ -19,13 +19,15 @@ router.route('/')
     })
     .post((req, res, next) => {
         pool.query(`INSERT INTO contacts(firstname, lastname, phone, email) 
-            VALUES($1, $2, $3, $4)`,
+            VALUES($1, $2, $3, $4) RETURNING id`,
         [req.body.firstname, req.body.lastname, req.body.phone, req.body.email],
         (err, result) => {
+            console.log(result.rows[0].id);
+            
             if (err) {
                 return res.status(500).send(err.message);
             }
-            req.body.id = result.insertId;
+            req.body.id = result.rows[0].id;
             res.status(201).send(JSON.stringify(req.body));
         });
     });
