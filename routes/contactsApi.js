@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-/* global db */
+/* global pool */
 
 var debug = require('debug')('contacts:contacts');
 var express = require('express');
@@ -7,18 +7,19 @@ var router = express.Router();
 
 router.route('/')
     .get((req, res, next) => {
-        db.query('SELECT * FROM contacts', (err, results) => {
+       
+        pool.query('SELECT * FROM contacts', (err, results) => {
             if (err) {
                 return res.status(500).send(err.message);
             }
             // console.log(results);
             
-            res.send(results);
+            res.send(results.rows);
         });
     })
     .post((req, res, next) => {
-        db.query(`INSERT INTO contacts(firstname, lastname, phone, email) 
-            VALUES(?, ?, ?, ?)`,
+        pool.query(`INSERT INTO contacts(firstname, lastname, phone, email) 
+            VALUES($1, $2, $3, $4)`,
         [req.body.firstname, req.body.lastname, req.body.phone, req.body.email],
         (err, result) => {
             if (err) {
@@ -30,7 +31,7 @@ router.route('/')
     });
 router.route('/:id')
     .delete ((req, res) => {
-        db.query('DELETE FROM contacts WHERE id=?', [req.params.id], (err, deleteResults) => {
+        pool.query('DELETE FROM contacts WHERE id=$1', [req.params.id], (err, deleteResults) => {
             if (err) {
                 return res.status(500).send(err.message);
             }
@@ -38,23 +39,25 @@ router.route('/:id')
         });
     })
     .get((req, res, next) => {
-        db.query('SELECT * FROM contacts WHERE id=?', [req.params.id], (err, results) => {
+        pool.query('SELECT * FROM contacts WHERE id=$1', [req.params.id], (err, results) => {
+            console.log('entered get', results);
+            console.log('entered get', results.rows.length);
             if (err) {
                 return res.status(500).send(err.message);
             }
-            console.log(results);
-            if (!results.length) {
+            // console.log(results);
+            if (!results.rows.length) {
                 return res.status(404).send(`No contact with id ${req.params.id}`);
             }
-            res.send(results);
+            res.send(results.rows);
         });
     })
     .put((req, res) => {
-        console.log('entered put');
-        console.log('req.query',req.query);
-        console.log(' req.params', req.params);
-        console.log(' req.body', req.body);
-        db.query('UPDATE contacts SET firstname = ?, lastname = ?, email = ?, phone = ? WHERE id = ?', 
+        // console.log('entered put');
+        // console.log('req.query',req.query);
+        // console.log(' req.params', req.params);
+        // console.log(' req.body', req.body);
+        pool.query('UPDATE contacts SET firstname = $1, lastname = $2, email = $3, phone = $4 WHERE id = $5', 
             [req.body.firstname, req.body.lastname, req.body.email, req.body.phone, req.params.id], (err, results) => {
             // UPDATE contacts SET firstname = 'kim' WHERE id = 1
                 if (err) {

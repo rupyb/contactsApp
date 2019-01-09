@@ -47,7 +47,7 @@
                     }).fail((xhr) => {
                         errorHeader[0].innerText = `${xhr.statusText} Code:${xhr.status}`;
                         errorMessage[0].innerText = xhr.responseText;
-                        errorDiv.show();
+                        $('#hiddenButton').click();
                     });
                 });
             }
@@ -57,7 +57,7 @@
 
                 errorHeader[0].innerText = `${xhr.statusText} Code:${xhr.status}`;
                 errorMessage[0].innerText = xhr.responseText;
-                errorDiv.show();
+                $('#hiddenButton').click();
             });
     });
 
@@ -83,6 +83,7 @@
     }
 
     updateForm.submit((event) => {
+        console.log('enterded event');
         event.preventDefault();
 
         const updatedContact = {
@@ -97,11 +98,17 @@
             url: `/api/contacts/${rowToUpdate.data('contactId')}`,
             data: updatedContact,
             success: () => {
+                console.log(updatedContact);
+                
                 $.get(`/api/contacts/${rowToUpdate.data('contactId')}`, contact => {
+                    console.log('enetered get after put');
+                    
                     rowToUpdate[0].children[0].innerText = contact[0].firstname;
                     rowToUpdate[0].children[1].innerText = contact[0].lastname;
                     rowToUpdate[0].children[2].innerText = contact[0].email;
                     rowToUpdate[0].children[3].innerText = contact[0].phone;
+                }).fail((xhr) => {
+                    console.log('failed', xhr);
                 });
                 cancelUpdateFormButton.click();
 
@@ -145,10 +152,13 @@
             email: emailElem.val(),
             phone: phoneElem.val()
         };
-
+        console.log('entered post');
         $.post('/api/contacts', newContact, res => {
+            console.log('success post');
+            
             addContact(res);
         }, 'json').fail((xhr) => {
+            console.log(' post failed');
             errorHeader[0].innerText = `${xhr.statusText} Code:${xhr.status}`;
             errorMessage[0].innerText = xhr.responseText;
             errorDiv.show();
@@ -168,6 +178,8 @@
 
     function startApp() {
         $.get('/api/contacts', loadedContacts => {
+            //console.log(loadedContacts.rows);
+            
             loadedContacts.forEach(contact => addContact(contact));
         }).fail((xhr) => {
             errorHeader[0].innerText = `${xhr.statusText} Code:${xhr.status}`;
@@ -175,5 +187,6 @@
             errorDiv.show();
         });
     }
+    $('#hiddenButton').hide();
     startApp();
 }());

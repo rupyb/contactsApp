@@ -5,8 +5,6 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
 
 var contactsApiRouter = require('./routes/contactsApi');
 
@@ -22,10 +20,10 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
+
 
 app.use('/api/contacts', contactsApiRouter);
-app.use('/users', usersRouter);
+
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -46,16 +44,32 @@ app.use(function (err, req, res, next) {
 app.locals.appTitle = 'PCS Contacts APP';
 
 
-const mysql = require('mysql');
-const connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'nodeuser',
-    password: 'test123',
-    database: 'nodeuser'
+const { Pool, Client } = require('pg');
+
+const connectionString = 'postgres://pbmiaedlsmwwuh:b7aa2a0306173fcb552a966ae02fe25614b78b37757540235146fe49979a1fff@ec2-174-129-18-247.compute-1.amazonaws.com:5432/d26ec1soo2b8o';
+
+const pool = new Pool({
+    connectionString: connectionString,
+    ssl: true,
 });
 
-connection.connect();
-global.db = connection;
+pool.query('SELECT * from contacts', (err, res) => {
+    // console.log(err, res.rows);
+    // pool.end();
+});
+
+const client = new Client({
+    connectionString: connectionString,
+    ssl: true,
+});
+  
+// eslint-disable-next-line quotes
+pool.query("UPDATE contacts SET lastname = 'dill' WHERE firstname = 'john'", (err, res) => {
+    // console.log('errorrrrrrrrrrrrrrrrrrrrrrrrr', err);   
+    // console.log(res);
+});
+
+global.pool = pool;
 
 debug('App initialized');
 module.exports = app;
