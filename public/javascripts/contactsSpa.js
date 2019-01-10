@@ -1,9 +1,10 @@
 /* eslint-disable no-console */
-/* global $ */
+/* global $ io*/
 
 (function () {
     'use strict';
 
+    let currentUser;
     let contacts = [];
     let addContactForm = $('#addContactForm');
     let theTableBody = $('#contactsTable tbody');
@@ -157,12 +158,13 @@
             console.log('success post');
             
             addContact(res);
-        }, 'json').fail((xhr) => {
-            console.log(' post failed');
-            errorHeader[0].innerText = `${xhr.statusText} Code:${xhr.status}`;
-            errorMessage[0].innerText = xhr.responseText;
-            $('#hiddenButton').click();
-        });
+        }, 'json')
+            .fail((xhr) => {
+                console.log(' post failed');
+                errorHeader[0].innerText = `${xhr.statusText} Code:${xhr.status}`;
+                errorMessage[0].innerText = xhr.responseText;
+                $('#hiddenButton').click();
+            });
 
         //hideAddContactForm();
         
@@ -226,21 +228,61 @@
         };
         console.log(newUser);
         $.post('/userSignIn', newUser, (res) => {
-            console.log(res);
+            console.log('sign in',res);
+            currentUser = res.firstname;
+            $('.userName').html(currentUser);
+            $('#addContact').css({ visibility: 'visible'});
             mainContent.show();
             startApp();
-        }).fail((xhr) => {
-            errorHeader[0].innerText = `${xhr.statusText} Code:${xhr.status}`;
-            errorMessage[0].innerText = xhr.responseText;
-            $('#hiddenButton').click();
-        });
+        })
+            .fail((xhr) => {
+                errorHeader[0].innerText = `${xhr.statusText} Code:${xhr.status}`;
+                errorMessage[0].innerText = xhr.responseText;
+                $('#hiddenButton').click();
+            });
         
         signInFormCloseButton.click();
         event.preventDefault();
     });
-    // end code for signup button
+    // end code for signin button
 
-    
+    // code for chat window
+    var socket = io.connect();
+
+    const message = $('#message');
+    const handle = $('#handle');
+    const button = $('#theSendButton');
+    const output = $('#output');
+    const feedback = $('#feedback');
+
+    button.click(() => {
+        socket.emit('sendchat', {
+            message: message.val(),
+            handle: handle.val()
+        });
+        feedback.html('');
+    });
+
+    socket.on('chat', (data) => {
+        // console.log('go chat', data);
+        const theHtml = output.html();
+        output.html( `${theHtml}<p><em>
+        ${data.handle}:</em> ${data.message}
+        </p>`);
+    });
+
+    handle.keyup(() => {
+        console.log('keypress');
+        
+        socket.emit('typingToServer', handle.val());
+    });
+
+    socket.on('typing', (data) => {
+        feedback.html(`<p><em>${data} is now typing</em></p>`);
+    });
+
+    // end code for chat window
+
     function startApp() {
         $.get('/api/contacts', loadedContacts => {
             //console.log(loadedContacts.rows);
@@ -253,6 +295,7 @@
         });
     }
 
-    $('#hiddenButton').hide();
+    //$('#hiddenButton').hide();
     mainContent.hide();
 }());
+

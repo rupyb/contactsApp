@@ -73,5 +73,8 @@ const client = new Client({
 
 global.pool = pool;
 
+// sockets
+
+
 debug('App initialized');
 module.exports = app;
