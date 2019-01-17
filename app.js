@@ -10,7 +10,7 @@ var contactsApiRouter = require('./routes/contactsApi');
 var userSignUp = require('./routes/userSignUp');
 var userSignIn = require('./routes/userSignIn');
 var index = require('./routes/index');
-var app = express();
+const app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
