@@ -24,6 +24,9 @@ router.route('/')
                 if(!queryResults.rows[0]) {
                     res.status(400).send('Email or Password is Incorrect!');
                 }
+                req.session.user = queryResults.rows[0];
+                console.log('user', req.session.user);
+                
                 res.status(200).send(queryResults.rows[0]);
             });
         } else {

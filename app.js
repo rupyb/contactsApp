@@ -2,13 +2,14 @@ var debug = require('debug')('contacts:app');
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
 
+var logger = require('morgan');
+const session = require('express-session');
 
 var contactsApiRouter = require('./routes/contactsApi');
 var userSignUp = require('./routes/userSignUp');
 var userSignIn = require('./routes/userSignIn');
+var index = require('./routes/index');
 var app = express();
 
 // view engine setup
@@ -18,14 +19,30 @@ app.set('view engine', 'hjs');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
+
+app.use(session({
+    secret: 'mySecret',
+    cookie: {
+        maxAge: 100000
+    },
+    resave: false,
+    saveUninitialized: false
+}));
+app.use('/isSignedIn',(req, res, next) => {
+    console.log(req.session);
+    let response = req.session.user ? req.session.user : null;
+    res.send(response);
+});
 app.use(express.static(path.join(__dirname, 'public')));
 
-
+app.use('/',index);
 app.use('/userSignUp',userSignUp);
 app.use('/userSignIn',userSignIn);
 app.use('/api/contacts', contactsApiRouter);
-
+app.use('/logOut',(req, res, next) => {
+    req.session.destroy();
+    res.end('/');
+});
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

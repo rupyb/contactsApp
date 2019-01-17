@@ -26,7 +26,17 @@
     const mainContent = $('#mainContent');
 
    
-
+    function isSignedIn() {
+        $.get('/isSignedIn', response => {
+            console.log(response);
+            currentUser = response; 
+            if(currentUser) {
+                userPageRender();
+            }
+            
+        });
+    }
+    isSignedIn();
     theTableBody.on('click', 'button.delete', event => {
         const rowToDelete = $(event.target).closest('tr');
         $.ajax({
@@ -221,6 +231,13 @@
     const signInSubmitButton = $('#signInSubmitButton');
     
     signInForm.submit((event) => {
+        signIn();
+        event.preventDefault();
+    });
+    
+    
+    function signIn() {
+
         console.log('submit');
         const newUser = {
             email: signInEmail.val(),
@@ -229,23 +246,50 @@
         console.log(newUser);
         $.post('/userSignIn', newUser, (res) => {
             console.log('sign in',res);
-            currentUser = res.firstname;
-            $('.userName').html(currentUser);
-            $('#addContact').css({ visibility: 'visible'});
-            mainContent.show();
-            startApp();
+            currentUser = res;
+           
+            userPageRender();
         })
             .fail((xhr) => {
                 errorHeader[0].innerText = `${xhr.statusText} Code:${xhr.status}`;
                 errorMessage[0].innerText = xhr.responseText;
                 $('#hiddenButton').click();
             });
-        
         signInFormCloseButton.click();
-        event.preventDefault();
-    });
+    }
+
+    function userPageRender() {
+        $('#addContact').css({ visibility: 'visible'});
+        mainContent.show();
+        startApp();
+        $('.userName').html(currentUser.firstname);
+        $('#signInButton').hide();
+        $('#signUpButton').hide();
+        $('#logOutButton').show();
+        $('#profileButton').show();
+    }
     // end code for signin button
 
+    // code for logout button
+
+    $('#logOutButton').click(() => {
+        $.post('/logout', (res) => {
+            console.log(res);
+            logOutRender();
+        });
+    });
+
+    function logOutRender() {
+        $('#addContact').css({ visibility: 'hidden'});
+        mainContent.hide();
+        // startApp();
+        $('.userName').html('');
+        $('#signInButton').show();
+        $('#signUpButton').show();
+        $('#logOutButton').hide();
+        $('#profileButton').hide();
+    }
+    // end code for logout button
     // code for chat window
     var socket = io.connect();
 
@@ -296,6 +340,6 @@
     }
 
     //$('#hiddenButton').hide();
-    mainContent.hide();
+    // mainContent.hide();
 }());
 

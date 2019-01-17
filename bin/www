@@ -86,7 +86,7 @@ function onListening() {
     var bind = typeof addr === 'string'
         ? 'pipe ' + addr
         : 'port ' + addr.port;
-    console.log('running on ', port);
+    //console.log('running on ', port);
     debug('Listening on ' + bind);
 }
 
@@ -94,15 +94,15 @@ var socket = require('socket.io');
 var io = socket(server);
 
 io.on('connection', (socket) => {
-    console.log('made connection', socket.id);
+    //console.log('made connection', socket.id);
     
     socket.on('sendchat', (data) => {
-        console.log('data',data);
+        //console.log('data',data);
         io.sockets.emit('chat', data);
     });
 
     socket.on('typingToServer', (data) => {
-        console.log('typing back end', data);
+        //console.log('typing back end', data);
       
         socket.broadcast.emit('typing', data);
     });
