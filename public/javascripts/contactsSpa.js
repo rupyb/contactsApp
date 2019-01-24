@@ -28,7 +28,6 @@
    
     function isSignedIn() {
         $.get('/isSignedIn', response => {
-            console.log(response);
             currentUser = response; 
             if(currentUser) {
                 userPageRender();
@@ -64,8 +63,6 @@
             }
         })
             .fail((xhr) => {
-                console.log('xhr fail delete', xhr);
-
                 errorHeader[0].innerText = `${xhr.statusText} Code:${xhr.status}`;
                 errorMessage[0].innerText = xhr.responseText;
                 $('#hiddenButton').click();
@@ -94,7 +91,6 @@
     }
 
     updateForm.submit((event) => {
-        console.log('enterded event');
         event.preventDefault();
 
         const updatedContact = {
@@ -109,11 +105,7 @@
             url: `/api/contacts/${rowToUpdate.data('contactId')}`,
             data: updatedContact,
             success: () => {
-                console.log(updatedContact);
-                
                 $.get(`/api/contacts/${rowToUpdate.data('contactId')}`, contact => {
-                    console.log('enetered get after put');
-                    
                     rowToUpdate[0].children[0].innerText = contact[0].firstname;
                     rowToUpdate[0].children[1].innerText = contact[0].lastname;
                     rowToUpdate[0].children[2].innerText = contact[0].email;
@@ -163,14 +155,10 @@
             email: emailElem.val(),
             phone: phoneElem.val()
         };
-        console.log('entered post');
-        $.post('/api/contacts', newContact, res => {
-            console.log('success post');
-            
+        $.post('/api/contacts', newContact, res => {   
             addContact(res);
         }, 'json')
             .fail((xhr) => {
-                console.log(' post failed');
                 errorHeader[0].innerText = `${xhr.statusText} Code:${xhr.status}`;
                 errorMessage[0].innerText = xhr.responseText;
                 $('#hiddenButton').click();
@@ -200,7 +188,6 @@
     const signUpSubmitButton = $('#signUpSubmitButton');
     
     signUpForm.submit((event) => {
-        console.log('submit');
         const newUser = {
             firstname: signUpFirstname.val(),
             lastname: signUpLastname.val(),
@@ -208,10 +195,7 @@
             password: signUpPassword.val(),
             adminPassword: signUpAdminPassword.val(),
         };
-        console.log(newUser);
-        $.post('/userSignUp', newUser, (res) => {
-            console.log(res);
-            
+        $.post('/userSignUp', newUser, () => {
         }).fail((xhr) => {
             errorHeader[0].innerText = `${xhr.statusText} Code:${xhr.status}`;
             errorMessage[0].innerText = xhr.responseText;
@@ -229,7 +213,8 @@
     const signInFormCloseButton = $('#signInFormCloseButton');
     const signInForm = $('#signInForm');
     const signInSubmitButton = $('#signInSubmitButton');
-    
+    // let socket = io.connect();
+    let socket;
     signInForm.submit((event) => {
         signIn();
         event.preventDefault();
@@ -237,17 +222,12 @@
     
     
     function signIn() {
-
-        console.log('submit');
         const newUser = {
             email: signInEmail.val(),
             password: signInPassword.val()
         };
-        console.log(newUser);
         $.post('/userSignIn', newUser, (res) => {
-            console.log('sign in',res);
             currentUser = res;
-           
             userPageRender();
         })
             .fail((xhr) => {
@@ -259,12 +239,14 @@
     }
 
     function userPageRender() {
+       
         $('#addContact').css({ visibility: 'visible'});
         mainContent.show();
         startApp();
         $('.userName').html(currentUser.firstname);
         $('#signInButton').hide();
         $('#signUpButton').hide();
+        $('#chatOpenButton').show();
         $('#logOutButton').show();
         $('#profileButton').show();
     }
@@ -273,8 +255,7 @@
     // code for logout button
 
     $('#logOutButton').click(() => {
-        $.post('/logout', (res) => {
-            console.log(res);
+        $.post('/logout', () => {
             logOutRender();
         });
     });
@@ -290,47 +271,96 @@
         $('#profileButton').hide();
     }
     // end code for logout button
+    
     // code for chat window
-    var socket = io.connect();
+    
+    // var socket = io.connect();
+    $('#chatOpenButton').click(() => {
+        socket = io.connect();
+        socket.emit('loggedIn', currentUser.firstname);
+        const message = $('#message');
+        // const handle = $('#handle');
+        const button = $('#theSendButton');
+        const output = $('#output');
+        const feedback = $('#feedback');
+        let currentUsersArray = [];
+        const dropdownDiv = $('#dropdownDiv');
+        let chatTarget;
+        let theHtml;
 
-    const message = $('#message');
-    const handle = $('#handle');
-    const button = $('#theSendButton');
-    const output = $('#output');
-    const feedback = $('#feedback');
-
-    button.click(() => {
-        socket.emit('sendchat', {
-            message: message.val(),
-            handle: handle.val()
+        socket.on('status', userArray => {
+            currentUsersArray = userArray;
+            renderChatters(userArray);
         });
-        feedback.html('');
-    });
-
-    socket.on('chat', (data) => {
-        // console.log('go chat', data);
-        const theHtml = output.html();
-        output.html( `${theHtml}<p><em>
-        ${data.handle}:</em> ${data.message}
-        </p>`);
-    });
-
-    handle.keyup(() => {
-        console.log('keypress');
+    
+        function renderChatters(userArray) {
+            dropdownDiv.empty();
+            dropdownDiv.append($('<div><button id="chatDropdownButton" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">Everyone</button><div class="dropdown-menu" id="chatMenu"></div></div>'));
+            const chatMenu = $('#chatMenu');
+            chatMenu.append($('<div class="dropdown-item" id="everyoneButton">EveryOne</div>'));
+            $('#everyoneButton').click(() => {
+                renderChatters(currentUsersArray);
+            });
+            userArray.filter(chatter => chatter.name !== currentUser.firstname).map(chatter => {
+                let newChatter = $(`<div class="dropdown-item">${chatter.name}</div>`);
+                
+                newChatter.click(() => {
+                    $('#chatDropdownButton').text(chatter.name);
+                    //  $('<div class="dropdown-item">Everyone</div>').appendTo(chatMenu);
+                    $('#everyoneButton').show();
+                    (chatMenu,newChatter).remove();
+                    chatTarget = chatter;
+                });
+                newChatter.appendTo(chatMenu);// <a class="dropdown-item" href="#">Link 1</a>
+            });
+        }
         
-        socket.emit('typingToServer', handle.val());
-    });
+       
+        button.click(() => {
+            socket.emit('sendchat', {
+                message: message.val(),
+                handle: currentUser.firstname,
+                chatTarget
+            });
 
-    socket.on('typing', (data) => {
-        feedback.html(`<p><em>${data} is now typing</em></p>`);
+            socket.emit('endTyping');
+
+            if(chatTarget) {
+                theHtml = output.html();
+                output.html( `${theHtml}<p><em>
+            ${currentUser.firstname}:</em> ${message.val()}
+            </p>`);
+            }
+
+            message.val('');
+            feedback.html('');
+        });
+    
+        socket.on('endTyping', () => {
+            feedback.html('');
+        });
+
+        socket.on('chat', (data) => {
+            theHtml = output.html();
+            output.html( `${theHtml}<p><em>
+            ${data.handle}:</em> ${data.message}
+            </p>`);
+        });
+    
+        message.keyup(() => {
+            socket.emit('typingToServer', {name:currentUser.firstname, chatTarget});
+        });
+    
+        socket.on('typing', (data) => {
+            feedback.html(`<p><em>${data} is now typing</em></p>`);
+        });
     });
+   
 
     // end code for chat window
 
     function startApp() {
         $.get('/api/contacts', loadedContacts => {
-            //console.log(loadedContacts.rows);
-            
             loadedContacts.forEach(contact => addContact(contact));
         }).fail((xhr) => {
             errorHeader[0].innerText = `${xhr.statusText} Code:${xhr.status}`;
@@ -338,8 +368,4 @@
             $('#hiddenButton').click();
         });
     }
-
-    //$('#hiddenButton').hide();
-    // mainContent.hide();
 }());
-

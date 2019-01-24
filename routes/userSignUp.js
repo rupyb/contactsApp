@@ -16,7 +16,6 @@ router.route('/')
             VALUES ($1, $2, $3,crypt($4, gen_salt('bf'))) RETURNING firstname`, 
             [firstname, lastname, email, password], (err, queryResults) => {
                 if (err) {
-                    console.log(err.message);
                     return res.status(500).send(err.message);
                 }
                 res.status(200).send(queryResults.rows[0]);
@@ -24,8 +23,6 @@ router.route('/')
         } else {
             res.status(401).send('Unauthorized Admin Password Incorrect!');
         }
-        
-        //res.end();
     })
     .get((req, res, next) => {
         res.end();

@@ -29,7 +29,6 @@ app.use(session({
     saveUninitialized: false
 }));
 app.use('/isSignedIn',(req, res, next) => {
-    console.log(req.session);
     let response = req.session.user ? req.session.user : null;
     res.send(response);
 });
@@ -63,7 +62,7 @@ app.use(function (err, req, res, next) {
 app.locals.appTitle = 'PCS Contacts APP';
 
 
-const { Pool, Client } = require('pg');
+const { Pool } = require('pg');
 
 const connectionString = 'postgres://pbmiaedlsmwwuh:b7aa2a0306173fcb552a966ae02fe25614b78b37757540235146fe49979a1fff@ec2-174-129-18-247.compute-1.amazonaws.com:5432/d26ec1soo2b8o';
 
@@ -72,25 +71,10 @@ const pool = new Pool({
     ssl: true,
 });
 
-pool.query('SELECT * from contacts', (err, res) => {
-    // console.log(err, res.rows);
-    // pool.end();
-});
-
-const client = new Client({
-    connectionString: connectionString,
-    ssl: true,
-});
-  
-// eslint-disable-next-line quotes
-// pool.query("SELECT * FROM users WHERE email = 'johndoe@mail.com' AND password = crypt('johnspassword', password);", (err, res) => {
-//     // console.log('errorrrrrrrrrrrrrrrrrrrrrrrrr', err);   
-//     console.log(res);
+// pool.query('SELECT * from contacts', (err, res) => {
 // });
 
 global.pool = pool;
-
-// sockets
 
 
 debug('App initialized');

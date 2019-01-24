@@ -86,24 +86,52 @@ function onListening() {
     var bind = typeof addr === 'string'
         ? 'pipe ' + addr
         : 'port ' + addr.port;
-    //console.log('running on ', port);
+    console.log('running on ', port);
     debug('Listening on ' + bind);
 }
+let users = [];
 
 var socket = require('socket.io');
 var io = socket(server);
 
 io.on('connection', (socket) => {
-    //console.log('made connection', socket.id);
     
+    socket.on('loggedIn', (data)=> {
+        const dataObj = {
+            name: data,
+            socketId: socket.id
+        };
+        if (!users.find(c => c.name === data)) {
+            users.push(dataObj);
+        }
+
+        io.sockets.emit('status',users);
+    });
+
     socket.on('sendchat', (data) => {
-        //console.log('data',data);
-        io.sockets.emit('chat', data);
+        if(data.chatTarget) { 
+            io.to(`${data.chatTarget.socketId}`).emit('chat',data);
+        } else {
+            io.emit('chat', data);
+        }
+    });
+
+    socket.on('endTyping', () => {
+        socket.broadcast.emit('endTyping');
     });
 
     socket.on('typingToServer', (data) => {
-        //console.log('typing back end', data);
+        if(data.chatTarget) {
+            io.to(`${data.chatTarget.socketId}`).emit('typing',data.name);
+        } else {
+            io.emit('typing', data.name);
+        }
       
-        socket.broadcast.emit('typing', data);
+        // socket.broadcast.emit('typing', data);
+    });
+
+    socket.on('disconnect', () => {
+        users = users.filter(user => user.socketId !== socket.id);
+        io.sockets.emit('status',users);
     });
 });
